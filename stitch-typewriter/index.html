@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f6d9dc" />
+    <meta name="description" content="绣字机：把一句话变成温柔的手绣桌布。" />
+    <title>绣字机 · Stitch Typewriter</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#top" aria-label="回到绣字机首页">
+          <span class="brand-mark" aria-hidden="true">✳</span>
+          <span>
+            <strong>绣字机</strong>
+            <small>STITCH TYPEWRITER</small>
+          </span>
+        </a>
+        <div class="top-actions">
+          <button class="text-button" id="clearBtn" type="button">清空布面</button>
+          <button class="icon-button" id="undoBtn" type="button" aria-label="撤销" title="撤销（⌘/Ctrl + Z）">↶</button>
+          <button class="icon-button" id="redoBtn" type="button" aria-label="重做" title="重做（⌘/Ctrl + Shift + Z）">↷</button>
+          <button class="save-button" id="saveBtn" type="button"><span aria-hidden="true">↓</span> 保存 PNG</button>
+        </div>
+      </header>
+
+      <section class="hero" id="top">
+        <div>
+          <p class="eyebrow">A TINY DIGITAL HABERDASHERY</p>
+          <h1>把一句话，<em>绣</em>成一块小桌布。</h1>
+          <p class="hero-copy">输入想留下的话，挑一根线，再让小小的针脚慢慢把它留在布面上。</p>
+        </div>
+        <div class="hero-note" aria-label="使用提示">
+          <span class="note-pin" aria-hidden="true"></span>
+          <span>点选工具后，<br />在布面上操作</span>
+        </div>
+      </section>
+
+      <section class="workbench" aria-label="刺绣工作台">
+        <aside class="tool-rail" aria-label="工具栏">
+          <button class="tool-button active" data-tool="thread" type="button">
+            <span class="tool-icon thread-icon" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span>绣线</span>
+          </button>
+          <button class="tool-button" data-tool="motif" type="button">
+            <span class="tool-icon" aria-hidden="true">✾</span>
+            <span>图案</span>
+          </button>
+          <button class="tool-button" data-tool="scissors" type="button">
+            <span class="tool-icon" aria-hidden="true">✂</span>
+            <span>剪刀</span>
+          </button>
+          <button class="tool-button" data-tool="settings" type="button">
+            <span class="tool-icon" aria-hidden="true">⚙</span>
+            <span>设置</span>
+          </button>
+          <button class="tool-button" data-tool="draw" type="button">
+            <span class="tool-icon pencil-icon" aria-hidden="true">✎</span>
+            <span>手绘</span>
+          </button>
+          <div class="rail-spacer"></div>
+          <span class="tool-hint" id="toolHint">先挑一根喜欢的线</span>
+        </aside>
+
+        <div class="fabric-stage">
+          <div class="stage-label">HAND-STITCHED / 001</div>
+          <div class="canvas-wrap" id="canvasWrap">
+            <canvas id="fabricCanvas" aria-label="刺绣布面，可在这里放置文字、图案和手绘线条"></canvas>
+            <div class="canvas-cursor" id="canvasCursor" aria-hidden="true"></div>
+          </div>
+          <div class="stage-footer">
+            <span><b class="status-dot"></b><span id="statusText">准备开始</span></span>
+            <span class="counter"><span id="stitchCount">0</span> 个针脚元素</span>
+          </div>
+        </div>
+
+        <aside class="control-panel" aria-label="当前工具设置">
+          <section class="panel-section thread-panel" data-panel="thread">
+            <div class="panel-heading">
+              <div>
+                <p class="panel-kicker">01 / THREAD</p>
+                <h2>挑一根绣线</h2>
+              </div>
+              <span class="swatch-preview" id="swatchPreview"></span>
+            </div>
+            <div class="color-grid" id="colorGrid" role="list" aria-label="绣线颜色"></div>
+            <div class="custom-color-row">
+              <label for="customColor">自定义颜色</label>
+              <input id="customColor" type="color" value="#c45266" aria-label="自定义绣线颜色" />
+            </div>
+            <label class="field-label" for="textInput">写点什么</label>
+            <div class="text-input-wrap">
+              <input id="textInput" maxlength="32" type="text" placeholder="比如：今天也要发光 ✦" autocomplete="off" />
+              <span id="textLength">0/32</span>
+            </div>
+            <button class="primary-button" id="stitchBtn" type="button">绣上去 <span aria-hidden="true">↗</span></button>
+            <p class="microcopy">按 Enter 也可以绣上去。文字会落在布面中央。</p>
+          </section>
+
+          <section class="panel-section motif-panel hidden" data-panel="motif">
+            <div class="panel-heading">
+              <div>
+                <p class="panel-kicker">02 / MOTIFS</p>
+                <h2>放一枚小图案</h2>
+              </div>
+            </div>
+            <div class="motif-grid" id="motifGrid" aria-label="刺绣图案"></div>
+            <p class="microcopy">选中图案后，在布面上点一下放置。</p>
+          </section>
+
+          <section class="panel-section scissors-panel hidden" data-panel="scissors">
+            <div class="panel-heading">
+              <div>
+                <p class="panel-kicker">03 / SCISSORS</p>
+                <h2>剪掉一针</h2>
+              </div>
+              <span class="panel-glyph" aria-hidden="true">✂</span>
+            </div>
+            <div class="instruction-card scissors-card">
+              <span class="instruction-icon" aria-hidden="true">⌁</span>
+              <p>点击或拖过布面上的文字、图案和线条，就可以把它们剪掉。</p>
+            </div>
+            <button class="secondary-button" id="backToThreadBtn" type="button">回到绣线</button>
+          </section>
+
+          <section class="panel-section settings-panel hidden" data-panel="settings">
+            <div class="panel-heading">
+              <div>
+                <p class="panel-kicker">04 / SETTINGS</p>
+                <h2>调整针脚手感</h2>
+              </div>
+              <span class="panel-glyph" aria-hidden="true">⚙</span>
+            </div>
+            <div class="range-row">
+              <label for="stitchSize">针脚大小 <output id="stitchSizeValue">1.0×</output></label>
+              <input id="stitchSize" type="range" min="0.7" max="1.5" step="0.1" value="1" />
+            </div>
+            <div class="range-row">
+              <label for="fabricWarmth">布面暖度 <output id="fabricWarmthValue">中</output></label>
+              <input id="fabricWarmth" type="range" min="0" max="2" step="1" value="1" />
+            </div>
+            <label class="toggle-row"><span>显示边框</span><input id="borderToggle" type="checkbox" checked /><i></i></label>
+            <label class="toggle-row"><span>显示针脚闪光</span><input id="sparkleToggle" type="checkbox" checked /><i></i></label>
+          </section>
+
+          <section class="panel-section draw-panel hidden" data-panel="draw">
+            <div class="panel-heading">
+              <div>
+                <p class="panel-kicker">05 / DRAW</p>
+                <h2>画一条自由的线</h2>
+              </div>
+              <span class="panel-glyph" aria-hidden="true">✎</span>
+            </div>
+            <div class="instruction-card pencil-card">
+              <span class="instruction-icon" aria-hidden="true">⌁</span>
+              <p>按住鼠标或手指在布面上画线，松开后会变成一串绣线。</p>
+            </div>
+            <div class="brush-row">
+              <label for="brushSize">线条粗细</label>
+              <input id="brushSize" type="range" min="2" max="10" step="1" value="4" />
+            </div>
+          </section>
+        </aside>
+      </section>
+
+      <footer class="footer-note">
+        <span>made with patience, pixels &amp; a little thread</span>
+        <span>© 2026 绣字机</span>
+      </footer>
+    </main>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
